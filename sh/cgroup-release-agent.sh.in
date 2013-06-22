@@ -3,8 +3,25 @@
 # This is run by the kernel after the last task is removed from a
 # control group in the openrc hierarchy.
 
-cgroup=/sys/fs/cgroup/openrc
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
-if [ -d ${cgroup}/"$1" ]; then
-	rmdir ${cgroup}/"$1"
+cgroup=/sys/fs/cgroup/openrc
+cgroup_rmdir=1
+RC_SVCNAME=${1}
+
+if [ -n "${RC_SVCNAME}" ] ; then
+	hook=@SYSCONFDIR@/conf.d/cgroups/${RC_SVCNAME}.cgroup-release
+	[ -f "$hook" -a -x "$hook" ] || hook=@SYSCONFDIR@/conf.d/cgroups/cgroup-release; 
+	if [ -x "$hook" ]; then 
+		"$hook" cleanup "$RC_SVCNAME" || case $? in $RC_CGROUP_CONTINUE) cgroup_rmdir=0;; esac ;
+	fi
+else
+	cgroup_rmdir=1
 fi
+
+if [ ${cgroup_rmdir} -a -d ${cgroup}/"$1" ]; then
+	for $c in /sys/fs/cgroup/* ; do
+		rmdir "${c}"/openrc_"$1"
+	done;
+	rmdir $cgroup/"${1}"
+fi
+
