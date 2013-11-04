@@ -1,0 +1,71 @@
+#!@SHELL@
+# Shell wrapper for runscript
+
+# Copyright (c) 2013 Alexander Vershilov <qnikst@gentoo.org>
+# Released under the 2-clause BSD license.
+
+
+# This is glue for Monit based supervision.
+#
+# Prerequences to use monit based supervision on your system:
+#    1. Monit should be running by the supervision of the init
+#       you can do it by adding 
+#         
+#          mo:2345:respawn:/usr/local/bin/monit -Ic /etc/monitrc
+#
+#       to the /etc/inittab and running:
+#
+#         telinit q
+#
+#       with other PID-1 solutions may differ.
+#
+#       This is needed to get monit be supervised itself.
+#    2. Monit should have following settings:
+#
+#       INCLUDE "/run/openrc-monit/*"
+#
+#       as this directory is used to store runtime scripts
+
+# We are checking if we have SERVICE file installed
+# in this case we are proceeding with current file
+
+[ -d /run/openrc-monit ] || mkdir /run/openrc-monit
+
+supervision_start() {
+if [ -f /run/openrc-monit/${RCSVCNAME} ] ; then
+	# TODO we may want to have other options
+	return ;
+else
+	case ${RC_MONIT_TYPE:-$rc_monit_type} in
+	'file')
+            cp /etc/conf.d/monit-files/${RC_SVCNAME} \
+				/run/openrc-monit/files/${RC_SVCNANE}
+            monit reload
+            #exec monit start ${RC_SVSNAME}
+            monit start ${RC_SVCNAME}
+            exit 0
+            ;;
+	case *)
+			eerror "default configuration option is not implemented yet"
+			exit 1
+	esac
+fi;
+}
+
+supervision_stop() {
+if [ ! -f /run/openrc-monit/${RC_SVCNAME} ] ; then
+    return ;
+else
+    case ${RC_MONIT_TYPE:-$rc_monit_type} in
+    file)
+        monit stop ${RC_SVCNAME}
+        rm /run/openrc-monit/${RC_SVCNAME}
+        monit reload
+        ;;
+    *)
+        eerror "default configuration option is not implemented yet"
+        exit 1
+    esac
+fi;
+}
+

@@ -13,9 +13,9 @@ SRCS-FreeBSD=
 BIN-FreeBSD=
 
 SRCS-Linux=	cgroup-release-agent.sh.in init-early.sh.in migrate-to-run.sh.in \
-	rc-cgroup.sh.in
+	rc-cgroup.sh.in rc-supervise-monit.sh.in
 BIN-Linux=	cgroup-release-agent.sh init-early.sh migrate-to-run.sh \
-	rc-cgroup.sh
+	rc-cgroup.sh rc-supervise-monit.sh
 
 SRCS-NetBSD=
 BIN-NetBSD=
