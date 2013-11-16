@@ -1,0 +1,60 @@
+              OpenRC Plugin System
+              --------------------
+
+Written by Alexander Vershilov <qnikst@gentoo.org>.
+
+Contents:
+=========
+
+1. Plugins system
+2. Usage Examples and Syntax
+3. OpenRC API
+4. Questions
+
+1. Plugin system
+================
+
+Plugins are simple units that may change default behaviour
+of runscript.sh in order to make additional actions and 
+add configuration options, etc.
+
+Plugins may be needed to make use of additional OS/host-specific 
+features like Control Groups or some programs like supervision
+systems, without make generic code heavyweight.
+
+Plugins are simple shell scripts that are injected into runscript
+sh by sourcing and can provide additional actions for basic 
+operations.
+
+
+2. Usage Examples and Syntax
+============================
+
+Plugins can inject additional actions for start_[pre|post]
+and stop_[pre|post] functions using function-list [*] approach
+
+Function naming conventions:
+
+Basic plugin structure:
+
+3. OpenRC API
+=============
+
+[*] Function lists
+for function `foo` that can be extended we are creating additional
+variable `foos` that stores a list of function that should
+be executed instead foo, e.g.:
+
+  foos="foo:foo1:foo2"
+
+to set such functions inside plugin you have to use following
+code:
+foos=$foos${foos+:}"new_functions"
+
+4. Questions
+============
+
+a. Do we need provide plugin autoloading?
+b. Do we need to extend function list syntax?
+c. Are there any other options that may simplify solution?
+

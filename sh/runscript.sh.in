@@ -32,6 +32,21 @@ sourcex()
 	fi
 }
 
+load_cmd() {
+	if [ "$(command -v "$1")" = "$1" ] ; then
+		eval "$1s=$1:$1s" #FIXME!!
+	fi
+}
+
+run_cmd() {
+	OIFS=${IFS}
+	IFS=:
+	for i in $1 ; do
+		$i || eexit $?
+	done
+	IFS=${OIFS}
+}
+
 sourcex "@LIBEXECDIR@/sh/functions.sh"
 sourcex "@LIBEXECDIR@/sh/rc-functions.sh"
 [ "$RC_SYS" != "PREFIX" ] && sourcex -e "@LIBEXECDIR@/sh/rc-cgroup.sh"
@@ -238,6 +253,10 @@ fi
 
 # Load our script
 sourcex "$RC_SERVICE"
+# Initialize function lists
+for i in start_pre start_post stop_pre stop_posts ; do
+	load_cmd $i
+done;
 
 for _d in $required_dirs; do
 	if [ ! -d $_d ]; then
@@ -317,19 +336,11 @@ while [ -n "$1" ]; do
 				case $1 in
 						start|stop|status) verify_boot;;
 				esac
-				if [ "$(command -v "$1_pre")" = "$1_pre" ]
-				then
-					"$1"_pre || exit $?
-				fi
+				c=${1}_pre
+				run_cmd ${!c}
 				"$1" || exit $?
-				if [ "$(command -v "$1_post")" = "$1_post" ]
-				then
-					"$1"_post || exit $?
-				fi
-				[ "$(command -v cgroup_cleanup)" = "cgroup_cleanup" -a \
-				"$1" = "stop" ] && \
-				yesno "${rc_cgroup_cleanup}" && \
-					cgroup_cleanup
+				c=${1}_post
+				run_cmd ${!c}
 				shift
 				continue 2
 			else

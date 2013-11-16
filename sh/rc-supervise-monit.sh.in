@@ -29,43 +29,47 @@
 # We are checking if we have SERVICE file installed
 # in this case we are proceeding with current file
 
-[ -d /run/openrc-monit ] || mkdir /run/openrc-monit
+case $1 in
+	'start')
+		start_posts=${start_postss}${start_postss+':'}plugin_monit_start_post;
+		;;
+	'stop')
+		stop_pres=${stop_postss}${stop_posts+':'}plugin_monit_stop_pre;
+		;;
+	*)
+		;;
+esac
 
-supervision_start() {
-if [ -f /run/openrc-monit/${RCSVCNAME} ] ; then
-	# TODO we may want to have other options
-	return ;
-else
+plugin_monit_start_post() {
 	case ${RC_MONIT_TYPE:-$rc_monit_type} in
 	'file')
-            cp /etc/conf.d/monit-files/${RC_SVCNAME} \
-				/run/openrc-monit/files/${RC_SVCNANE}
-            monit reload
-            #exec monit start ${RC_SVSNAME}
-            monit start ${RC_SVCNAME}
-            exit 0
-            ;;
-	case *)
-			eerror "default configuration option is not implemented yet"
-			exit 1
+		cp /etc/conf.d/monit-files/${RC_SVCNAME} \
+			/run/openrc-monit/files/${RC_SVCNANE}
+		monit reload
+		#exec monit start ${RC_SVSNAME}
+		monit start ${RC_SVCNAME}
+		;;
+	'native')
+		monit monitor ${RC_SVCNAME}
+		;;
+	*)
+		eerror "default configuration option is not implemented yet"
 	esac
 fi;
 }
 
-supervision_stop() {
-if [ ! -f /run/openrc-monit/${RC_SVCNAME} ] ; then
-    return ;
-else
-    case ${RC_MONIT_TYPE:-$rc_monit_type} in
-    file)
-        monit stop ${RC_SVCNAME}
-        rm /run/openrc-monit/${RC_SVCNAME}
-        monit reload
-        ;;
-    *)
-        eerror "default configuration option is not implemented yet"
-        exit 1
-    esac
-fi;
+plugin_monit_post_stop() {
+	case ${RC_MONIT_TYPE:-$rc_monit_type} in
+	'file')
+		monit stop ${RC_SVCNAME}
+		rm /run/openrc-monit/${RC_SVCNAME}
+		monit reload
+		;;
+	'native')
+		monit unmonitor ${RC_SVCNAME}
+		;;
+	*)
+		eerror "default configuration option is not implemented yet"
+esac
 }
 
