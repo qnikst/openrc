@@ -32,17 +32,16 @@ sourcex()
 	fi
 }
 
-load_cmd() {
-	if [ "$(command -v "$1")" = "$1" ] ; then
-		eval "$1s=$1:$1s" #FIXME!!
-	fi
-}
-
 run_cmd() {
 	OIFS=${IFS}
+	echo $1
 	IFS=:
 	for i in $1 ; do
-		IFS=$OIFS eval $i || eexit $?
+		if [ -n $i ] ; then
+			if [ "$(command -v "$i")" = "$i" ] ; then
+				IFS=$OIFS $i || exit $?
+			fi
+		fi
 	done
 	IFS=${OIFS}
 }
@@ -255,9 +254,10 @@ fi
 sourcex "$RC_SERVICE"
 
 # Initialize function lists
-for i in start_pre start_post stop_pre stop_post ; do
-	load_cmd $i
-done;
+start_pres=start_pre:$start_pres
+start_posts=start_post:$start_posts
+stop_pres=stop_pre:$stop_pres
+stop_posts=stop_post:$stop_posts
 
 for _d in $required_dirs; do
 	if [ ! -d $_d ]; then
