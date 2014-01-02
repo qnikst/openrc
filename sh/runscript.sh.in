@@ -39,7 +39,9 @@ run_cmd() {
 	for i in $1 ; do
 		if [ -n $i ] ; then
 			if [ "$(command -v "$i")" = "$i" ] ; then
-				IFS=$OIFS $i || exit $?
+                IFS=$OIFS
+				$i || exit $?
+                IFS=:
 			fi
 		fi
 	done
@@ -337,10 +339,10 @@ while [ -n "$1" ]; do
 				case $1 in
 						start|stop|status) verify_boot;;
 				esac
-				c=${1}_pre
+				c=${1}_pres
 				run_cmd ${!c}
 				"$1" || exit $?
-				c=${1}_post
+				c=${1}_posts
 				run_cmd ${!c}
 				shift
 				continue 2
