@@ -42,7 +42,7 @@ run_cmd() {
 	OIFS=${IFS}
 	IFS=:
 	for i in $1 ; do
-		eval $i || eexit $?
+		IFS=$OIFS eval $i || eexit $?
 	done
 	IFS=${OIFS}
 }
@@ -255,7 +255,7 @@ fi
 sourcex "$RC_SERVICE"
 
 # Initialize function lists
-for i in start_pre start_post stop_pre stop_posts ; do
+for i in start_pre start_post stop_pre stop_post ; do
 	load_cmd $i
 done;
 
