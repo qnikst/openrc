@@ -1,0 +1,17 @@
+#!/bin/sh
+# Base for supervision plugins
+#
+# Copyright (c) 2013 Alexander Vershilov <qnikst@gentoo.org>
+# Released under the 2-clause BSD license.
+
+if [ -z "${RC_SUPERVISE_MODULE:-$rc_supervise_module}" ] ; then
+	einfo "starting supervision module: ${rc_supervise_module}"
+	if [ -f "@LIBEXECDIR@/sh/rc-supervise-${rc_supervise_module:-$rc_supervise_module}.sh" ] ; then
+		sourcex -e "@LIBEXECDIR@/sh/rc-supervise-${RC_SUPERVISE_MODULE:-$rc_supervise_module}.sh"
+		if [ "$(command -v "supervision_$1")" = "supervision_$1" ]; then
+		supervision_$1
+		fi
+	else 
+		ewarn "supervision module required but it doesn't exists: ${RC_SUPERVISE_MODULE:-$rc_supervise_module} skipping"
+	fi
+fi

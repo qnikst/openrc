@@ -1,0 +1,4 @@
+while lines service /run/openrc/restart-queue ; do
+      rc-service $service zap
+      rc-service $service restart
+done
