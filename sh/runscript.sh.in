@@ -240,7 +240,7 @@ fi
 
 # Check supervision: if supervision module is enabled for the given
 # service then source that module.
-if [ -z "${RC_SUPERVISE_MODULE:-$rc_supervise_module}" ] ; then
+if [ -n "${RC_SUPERVISE_MODULE:-$rc_supervise_module}" ] ; then
 	einfo "starting supervision module: ${rc_supervise_module}"
 	if [ -f "@LIBEXECDIR@/sh/rc-supervise-${rc_supervise_module:-$rc_supervise_module}.sh" ] ; then
 		sourcex -e "@LIBEXECDIR@/sh/rc-supervise-${RC_SUPERVISE_MODULE:-$rc_supervise_module}.sh"
