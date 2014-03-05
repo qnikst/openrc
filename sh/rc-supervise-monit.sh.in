@@ -40,11 +40,12 @@ supervision_stop() {
 plugin_monit_start_post() {
 	case ${RC_MONIT_TYPE:-$rc_monit_type} in
 	'file')
-        [ -d /run/openrc-monit/files/ ] || mkdir -p /run/openrc-monit/files
+		[ -d /run/openrc-monit/files/ ] || mkdir -p /run/openrc-monit/files
 		cp /etc/conf.d/monit-files/${RC_SVCNAME} \
-			/run/openrc-monit/files/${RC_SVCNANE}
+			/run/openrc-monit/files/${RC_SVCNAME}
 		monit reload
-		monit start ${RC_SVCNAME}
+		sleep 1
+		monit monitor ${RC_SVCNAME}
 		;;
 	'native')
 		monit monitor ${RC_SVCNAME}
@@ -54,11 +55,11 @@ plugin_monit_start_post() {
 	esac
 }
 
-plugin_monit_post_stop() {
+plugin_monit_stop_pre() {
 	case ${RC_MONIT_TYPE:-$rc_monit_type} in
 	'file')
-		monit stop ${RC_SVCNAME}
-		rm /run/openrc-monit/${RC_SVCNAME}
+		monit unmonitor ${RC_SVCNAME}
+		rm /run/openrc-monit/files/${RC_SVCNAME}
 		monit reload
 		;;
 	'native')
