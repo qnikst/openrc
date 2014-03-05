@@ -11,7 +11,7 @@
 #    1. Monit should be running by the supervision of the init
 #       you can do it by adding 
 #         
-#          mo:2345:respawn:/usr/local/bin/monit -Ic /etc/monitrc
+#          mo:2345:respawn:/usr/bin/monit -Ic /etc/monitrc
 #
 #       to the /etc/inittab and running:
 #
